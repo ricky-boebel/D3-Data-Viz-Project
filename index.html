@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+      /*circle {
+        fill: orange;
+        stroke: black;
+        stroke-width: 0.5;
+        opacity: 0.9;
+      }*/
+    </style>
+    <script type="text/javascript">  
+      function draw(geo_data) {
+        "use strict";
+        var margin = 75,
+            width = 1400 - margin,
+            height = 600 - margin;
+
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width + margin)
+            .attr("height", height + margin)
+            .append('g')
+            .attr('class', 'map');
+
+        var projection = d3.geo.mercator()
+                               .scale(550)
+                               .translate([width /1.1, height / .9]);
+        
+        var path = d3.geo.path().projection(projection);
+
+        var map = svg.selectAll('path')
+                     .data(geo_data.features)
+                     .enter()
+                     .append('path')
+                     .attr('d', path)
+                     .style('fill', 'lightBlue')
+                     .style('stroke', 'black')
+                     .style('stroke-width', 0.2);
+		
+        function plot_points(data) {
+        	var colors=['green','red' ];
+        	
+			var total_max = d3.max(data, function(d) {
+                return d['dpf'];
+            });
+
+            var radius = d3.scale.linear()
+                           .domain([0, total_max])
+                           .range([0, 12]);
+            
+            function key_func(d){
+           		return d['Month'];
+           	}
+            
+            svg.append('g')
+               .attr("class", "bubble")
+               .selectAll("circle")
+               .data(data.sort(function(a,b){
+               		return b.total - a.total}),
+               		function(d){return d.total})
+               .enter()
+               .append("circle")
+               .attr('cx', function(d) {return d['long'];} )
+               .attr('cy', function(d) { return d['lat']; })
+               .attr('r', function (d){
+               		return radius(d['dpf']);
+               })
+               .attr('fill',function(d){return colors[d.delayed]})
+               .attr('stroke', 'black')
+               .attr('stroke-width', 0.5)
+               .attr('opacity', 0.5);
+        
+        function update(month){
+        	var filtered = data.filter(function(d){
+        		return d.Month === month;
+        	});
+        	
+        	
+        	var totalf_max = d3.extent(data, function(d) {
+                return d.dpf;
+            });
+
+            var radiusf = d3.scale.linear()
+                           .domain(totalf_max)
+                           .range([0, 20]);
+            //debugger;             
+        	var circles = svg.selectAll('circle')
+        					 .data(filtered, function(d){return d.total});
+        	
+        	circles.exit().remove();
+        	circles.enter()
+        	  	   .append("circle")
+        	  	   .attr('cx', function(d) {return d['long'];} )
+               	   .attr('cy', function(d) { return d['lat']; })
+                   .attr('r', function (d){ return radiusf(d.dpf);})
+               	   .attr('fill', function(d){return colors[d.delayed]})
+               	   .attr('stroke', 'black')
+               	   .attr('stroke-width', 0.5)
+               	   .attr('opacity', 0.5);
+               
+        
+        }
+       //debugger;
+       //update(11)
+        
+        ///*
+        var months = [];
+
+          for(var i = 1; i < 13; i += 1) {
+            months.push(i);
+            };
+          
+		  
+          var month_idx = 0;
+
+          var month_interval = setInterval(function() {
+            update(months[month_idx]);
+
+            month_idx++;
+
+            if(month_idx >= months.length) {
+                clearInterval(month_interval);
+            }
+          }, 1000);//*/
+     	
+        }
+
+
+        d3.csv("airports01delayoverten.csv", function(d) {
+          d['total'] = +d['total'];
+          d['dpf'] = +d['dpf'];
+          d['Month'] = +d['Month'];
+          d['delayed'] = +d['delayed'];
+          d['long']= projection([+d.long, +d.lat])[0];
+          d['lat']= projection([+d.long, +d.lat])[1];
+          return d;
+          }, plot_points);
+      };
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 to load the GeoJSON file
+    */
+    
+d3.json("usa.json", draw);
+  </script>
+</body>
+</html>
