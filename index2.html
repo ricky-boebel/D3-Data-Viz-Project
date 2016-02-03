@@ -2,7 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="d3.js"></script>
+   <style>
        div.months_buttons {
         position: fixed;
         top: 70px;
@@ -59,14 +60,14 @@
                      .enter()
                      .append('path')
                      .attr('d', path)
-                     .style('fill', 'lightGrey')
+                     .style('fill', 'lightBlue')
                      .style('stroke', 'black')
                      .style('stroke-width', 0.2);
         
         
 		
         function plot_points(data) {
-        	var colors=['green','red' ];
+        
         	
 			var total_max = d3.max(data, function(d) {
                 return d['dpf'];
@@ -93,7 +94,7 @@
                .attr('r', function (d){
                		return radius(d['dpf']);
                })
-               .attr('fill',function(d){return colors[d.delayed]})
+               .attr('fill','red')
                .attr('stroke', 'black')
                .attr('stroke-width', 0.5)
                .attr('opacity', 0.5);
@@ -132,7 +133,7 @@
         	  	   .attr('cx', function(d) {return d['long'];} )
                	   .attr('cy', function(d) { return d['lat']; })
                    .attr('r', function (d){ return radiusf(d.dpf);})
-               	   .style('fill', function(d){return colors[d.delayed]})
+               	   .style('fill', 'red')
                	   .attr('stroke', 'black')
                	   .attr('stroke-width', 0.5)
                	   .attr('opacity', 0.5);
@@ -149,40 +150,9 @@
             if(month_idx >= months.length) {
                 clearInterval(month_interval);
                 
-                d3.select('circles').append('circle')
-        			    .attr('r',10)
-        			    .attr('fill', 'red')
-        			    .attr('cx',50)
-        			    .attr('cy',400);
-                
-                var buttons = d3.select("body")
-                        .append("div")
-                        .attr("class", "months_buttons")
-                        .selectAll("div")
-                        .data(months)
-                        .enter()
-                        .append("div")
-                        .text(function(d) {
-                            return month_name[d-1];})
-				 
-				buttons.on("click", function(d) {
-                    d3.select(".months_buttons")
-                      .selectAll("div")
-                      .transition()
-                      .duration(200)
-                      .style("color", "black")
-                      .style("background", "lightGrey")
-                      .style("font-family", "sans-serif");
-
-                    d3.select(this)
-                      .transition()
-                      .duration(200)
-                      .style("background", "lightBlue")
-                      .style("color", "white");
-                    update(d);
-                  });
+             
             }
-          }, 100);
+          }, 1000);
      	
         }
         d3.csv("airports01delayoverten.csv", function(d) {
