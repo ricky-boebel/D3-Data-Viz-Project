@@ -1,4 +1,4 @@
-Udacity Data Analyst Course Project 6
+Udacity Project 6 completed January 2016
 
 By Ricky Boebel
 
